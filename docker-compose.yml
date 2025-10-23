@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   db:
     image: postgres:15
@@ -16,9 +14,13 @@ services:
       - myapp-network
 
   web:
-    build: .
+    build:
+      context: .
+      args:
+        UID: 1000   # WSL の id -u
+        GID: 1000   # WSL の id -g
     container_name: myapp-web
-    command: bash -c "rm -f tmp/pids/server.pid && rails s -b 0.0.0.0"
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -b 0.0.0.0"
     volumes:
       - .:/rails
     ports:
@@ -31,6 +33,8 @@ services:
       DATABASE_PASSWORD: password
     networks:
       - myapp-network
+    stdin_open: true
+    tty: true
 
 volumes:
   db-data:
